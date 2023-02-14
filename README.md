@@ -15,10 +15,12 @@ of Reusable Object-Oriented Software（中文译名：设计模式 - 可复用�
 * 对接口编程而不是对实现编程。
 * 优先使用对象组合而不是继承。
 <br/>
+
 ## 设计模式汇总
 根据设计模式的参考书 Design Patterns - Elements of Reusable Object-Oriented Software（中文译名：设计模式 - 可复用的面向对象软件元素） 
 中所提到的，总共有 23 种设计模式。这些模式可以分为三大类：创建型模式（Creational Patterns）、结构型模式（Structural Patterns）、
 行为型模式（Behavioral Patterns）。
+
 ### 创建型模式
 创建型设计模式提供了一种在创建对象的同时隐藏创建逻辑的方式，而不是使用 new 运算符直接实例化对象。这使得程序在判断针对某个给定实例需要创建哪些对象时更加灵活。
 * <a href="">工厂模式（Factory Pattern）</a>
@@ -26,6 +28,7 @@ of Reusable Object-Oriented Software（中文译名：设计模式 - 可复用�
 * <a href="">单例模式（Singleton Pattern）</a>
 * <a href="">建造者模式（Builder Pattern）</a>
 * <a href="">原型模式（Prototype Pattern）</a>
+
 ### 结构型模式
 结构型设计模式关注类和对象的组合。继承的概念被用来组合接口和定义组合对象获得新功能的方式。
 * <a href="">适配器模式（Adapter Pattern）</a>
@@ -36,6 +39,7 @@ of Reusable Object-Oriented Software（中文译名：设计模式 - 可复用�
 * <a href="">外观模式（Facade Pattern）</a>
 * <a href="">享元模式（Flyweight Pattern）</a>
 * <a href="">代理模式（Proxy Pattern）</a>
+
 ### 行为型模式
 行为型模式不仅仅关注类和对象的结构，而且重点关注它们之间的相互作用。 通过行为型模式，可以更加清晰地划分类与对象的职责，并研究系统在运行时实例对象之间的交互。在系统运行时，对象并不是孤 立的，它们可以通过相互通信与协作完成某些复杂功能，一个对象在运行时也将影响到其他对象的运行。
 * <a href="">责任链模式（Chain of Responsibility Pattern）</a>
