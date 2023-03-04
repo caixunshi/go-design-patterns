@@ -96,6 +96,7 @@ This is a square
 --- PASS: TestShapeFactory (0.00s)
 ```
 ## 类图
+![类图](https://caixunshi.github.io/document/go-design-patterns/factory.jpg)
 
 ## 优点
 * 一个调用者想创建一个对象，只要知道其名称就可以了；
