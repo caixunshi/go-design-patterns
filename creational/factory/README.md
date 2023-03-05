@@ -84,16 +84,17 @@ func TestShapeFactory(t *testing.T) {
 ```
 * 执行命令
 ```shell
-go test -v shape_factory_test.go shape_factory.go shape.go square.go circle.go rectangle.go
+go test ./
 ```
 
 * 输出结果
 ```
-=== RUN   TestShapeFactory
 This is a circle
 This is a rectangle
 This is a square
 --- PASS: TestShapeFactory (0.00s)
+PASS
+ok      go-design-patterns/creational/factory   0.330s
 ```
 ## 类图
 ![类图](https://caixunshi.github.io/document/go-design-patterns/factory.jpg)
