@@ -8,93 +8,125 @@
 * Windows 是多进程多线程的，在操作一个文件的时候，就不可避免地出现多个进程或线程同时操作一个文件的现象，所以所有文件的处理必须通过唯一的实例来进行。
 * 一些设备管理器常常设计为单例模式，比如一个电脑有两台打印机，在输出的时候就要处理不能两台打印机打印同一个文件。
 ## 代码展示
-* 画图接口
+* 懒汉式
 ``` go
-type Shape interface {
-	draw()
-}
-```
-* 不同图形的实现
-``` go
-// 长方形
-type Rectangle struct {
-}
-func (r *Rectangle) draw() {
-	fmt.Println("This is a rectangle")
+package singleton
+
+import (
+	"fmt"
+	"sync"
+)
+
+var (
+	lazySingletonInstance *lazySingleton
+	once                  = &sync.Once{}
+)
+
+type lazySingleton struct {
 }
 
-// 圆型
-type Circle struct {
-}
-func (c *Circle) draw() {
-	fmt.Println("This is a circle")
-}
-
-// 正方形
-type Square struct {
-}
-func (s *Square) draw() {
-	fmt.Println("This is a square")
-}
-```
-* 图形工厂
-``` go
-const CircleShape = "circle"
-const RectangleShape = "rectangle"
-const SquareShape = "square"
-
-type ShapeFactory struct {
-}
-
-func (s *ShapeFactory) getShape(shapeType string) (Shape, error) {
-	switch shapeType {
-	case CircleShape:
-		return &Circle{}, nil
-	case RectangleShape:
-		return &Rectangle{}, nil
-	case SquareShape:
-		return &Square{}, nil
-	default:
-		return nil, errors.New("unknow shapeType")
+func GetLazySingletonInstance() *lazySingleton {
+	if lazySingletonInstance == nil {
+		once.Do(func() {
+			fmt.Println("init lazySingleton")
+			lazySingletonInstance = &lazySingleton{}
+		})
 	}
+	return lazySingletonInstance
 }
 ```
+* 懒汉式-双重锁检查
+``` go
+package singleton
+
+import "sync"
+
+type DoubleCheckSingleton struct {
+}
+
+var (
+	lock                         = &sync.Mutex{}
+	doubleCheckSingletonInstance *DoubleCheckSingleton
+)
+
+func GetDoubleCheckSingletonInstance() *DoubleCheckSingleton {
+	if doubleCheckSingletonInstance == nil {
+		lock.Lock()
+		defer lock.Unlock()
+		if doubleCheckSingletonInstance == nil {
+			doubleCheckSingletonInstance = &DoubleCheckSingleton{}
+		}
+	}
+	return doubleCheckSingletonInstance
+}
+```
+* 饿汉式
+``` go
+package singleton
+
+var hungerSingletonInstance *HungerSingleton
+
+// init -> main
+func init() {
+	hungerSingletonInstance = &HungerSingleton{}
+}
+
+type HungerSingleton struct {
+}
+
+func GetHungerSingleton() *HungerSingleton {
+	return hungerSingletonInstance
+}
+```
+
 * 测试类
 ``` go
-func TestShapeFactory(t *testing.T) {
-	var factory = &ShapeFactory{}
-	circle, err := factory.getShape(CircleShape)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	circle.draw()
+package singleton
 
-	rectangle, err := factory.getShape(RectangleShape)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	rectangle.draw()
+import "testing"
 
-	square, err := factory.getShape(SquareShape)
-	if err != nil {
-		t.Errorf(err.Error())
+func BenchmarkLazySingleton(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		instanceA := GetLazySingletonInstance()
+		instanceB := GetLazySingletonInstance()
+		if instanceA != instanceB {
+			b.Error("different objects")
+		}
 	}
-	square.draw()
+}
+
+func BenchmarkHungerSingleton(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		instanceA := GetHungerSingleton()
+		instanceB := GetHungerSingleton()
+		if instanceA != instanceB {
+			b.Error("different objects")
+		}
+	}
+}
+
+func BenchmarkDoubleCheckSingleton(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		instanceA := GetDoubleCheckSingletonInstance()
+		instanceB := GetDoubleCheckSingletonInstance()
+		if instanceA != instanceB {
+			b.Error("different objects")
+		}
+	}
 }
 ```
 * 执行命令
 ```shell
-go test ./
+go test -bench=. -run=none
 ```
 
 * 输出结果
 ```
-This is a circle
-This is a rectangle
-This is a square
---- PASS: TestShapeFactory (0.00s)
+BenchmarkLazySingleton-2                291124850                4.460 ns/op
+BenchmarkHungerSingleton-2              1000000000               0.3125 ns/op
+BenchmarkDoubleCheckSingleton-2         244314862                4.992 ns/op
 PASS
-ok      go-design-patterns/creational/factory   0.330s
+ok      go-design-patterns/creational/singleton 3.819s
 ```
 ## 类图
 ![类图](https://caixunshi.github.io/document/go-design-patterns/singleton.jpg)
