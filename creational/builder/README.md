@@ -11,128 +11,235 @@
 
 然后我们创建一个 Meal 类，带有 Item 的 ArrayList 和一个通过结合 Item 来创建不同类型的 Meal 对象的 MealBuilder。BuilderPatternDemo 类使用 MealBuilder 来创建一个 Meal。
 ## 代码展示
-* 懒汉式
+* 定义一个表示食物的接口
 ``` go
-package singleton
+package builder
+
+type Item interface {
+	name() string
+	packing() Packing
+	price() float64
+}
+```
+* 定义一个表示食物容器的接口
+``` go
+package builder
+
+type Packing interface {
+	pack() string
+}
+```
+* 定义食物容器的包装袋实现
+``` go
+package builder
+
+type Wrapper struct {
+}
+
+func (*Wrapper) pack() string {
+	return "wrapper"
+}
+```
+* 定义食物容器的瓶子实现
+``` go
+package builder
+
+type Bottle struct {
+}
+
+func (*Bottle) pack() string {
+	return "bottle"
+}
+```
+* 定义汉堡类的食物，汉堡需要用包装袋打包
+``` go
+package builder
+
+type Burger struct {
+}
+
+func (*Burger) packing() Packing {
+	return &Wrapper{}
+}
+func (*Burger) name() string {
+	return ""
+}
+func (*Burger) price() float64 {
+	return 0
+}
+```
+
+* 定义蔬菜汉堡实现
+``` go
+package builder
+
+type VegBurger struct {
+	Burger
+}
+
+func (*VegBurger) name() string {
+	return "veg burger"
+}
+func (*VegBurger) price() float64 {
+	return 19.99
+}
+```
+* 定义鸡肉汉堡实现
+``` go
+package builder
+
+type ChickenBurger struct {
+	Burger
+}
+
+func (*ChickenBurger) name() string {
+	return "chicken burger"
+}
+func (*ChickenBurger) price() float64 {
+	return 39.99
+}
+```
+* 定义冷饮类的食物，冷饮需要用瓶子打包
+``` go
+package builder
+
+type ColdDrink struct {
+}
+
+func (*ColdDrink) packing() Packing {
+	return &Bottle{}
+}
+func (*ColdDrink) name() string {
+	return ""
+}
+func (*ColdDrink) price() float64 {
+	return 0
+}
+```
+* 第一种冷饮：百事可乐
+``` go
+package builder
+
+type PepsiCola struct {
+	ColdDrink
+}
+
+func (*PepsiCola) name() string {
+	return "PepsiCola"
+}
+func (*PepsiCola) price() float64 {
+	return 7.99
+}
+```
+* 第二种冷饮：可口可乐
+``` go
+package builder
+
+type CocaCola struct {
+	ColdDrink
+}
+
+func (*CocaCola) name() string {
+	return "CocaCola"
+}
+func (*CocaCola) price() float64 {
+	return 8.99
+}
+```
+* 定义食物套餐，套餐由一系列食物组成
+``` go
+package builder
+
+import "fmt"
+
+type Meal struct {
+	items []Item
+}
+
+func (m *Meal) AddItem(item Item) {
+	if m.items == nil {
+		m.items = []Item{}
+	}
+	m.items = append(m.items, item)
+}
+
+func (m *Meal) ShowItems() {
+	for _, item := range m.items {
+		fmt.Println(fmt.Sprintf("This is a %s packed in a %s", item.name(), item.packing().pack()))
+	}
+}
+
+func (m *Meal) getCost() float64 {
+	money := float64(0)
+	for _, item := range m.items {
+		money += item.price()
+	}
+	return money
+}
+```
+* 定义蔬菜汉堡套餐建造者和鸡肉汉堡套餐构建者
+``` go
+package builder
+
+func VegMeal() *Meal {
+	meal := &Meal{}
+	meal.AddItem(&VegBurger{})
+	meal.AddItem(&CocaCola{})
+	return meal
+}
+
+func ChickenMeal() *Meal {
+	meal := &Meal{}
+	meal.AddItem(&ChickenBurger{})
+	meal.AddItem(&PepsiCola{})
+	return meal
+}
+```
+* 定义测试类
+``` go
+package builder
 
 import (
 	"fmt"
-	"sync"
+	"testing"
 )
 
-var (
-	lazySingletonInstance *lazySingleton
-	once                  = &sync.Once{}
-)
+func TestBuilder(t *testing.T) {
+	vegMeal := VegMeal()
+	fmt.Println("veg meal item:")
+	vegMeal.ShowItems()
+	fmt.Println(fmt.Sprintf("veg meal，total cost：%f", vegMeal.getCost()))
 
-type lazySingleton struct {
-}
-
-func GetLazySingletonInstance() *lazySingleton {
-	if lazySingletonInstance == nil {
-		once.Do(func() {
-			fmt.Println("init lazySingleton")
-			lazySingletonInstance = &lazySingleton{}
-		})
-	}
-	return lazySingletonInstance
-}
-```
-* 懒汉式-双重锁检查
-``` go
-package singleton
-
-import "sync"
-
-type DoubleCheckSingleton struct {
-}
-
-var (
-	lock                         = &sync.Mutex{}
-	doubleCheckSingletonInstance *DoubleCheckSingleton
-)
-
-func GetDoubleCheckSingletonInstance() *DoubleCheckSingleton {
-	if doubleCheckSingletonInstance == nil {
-		lock.Lock()
-		defer lock.Unlock()
-		if doubleCheckSingletonInstance == nil {
-			doubleCheckSingletonInstance = &DoubleCheckSingleton{}
-		}
-	}
-	return doubleCheckSingletonInstance
-}
-```
-* 饿汉式
-``` go
-package singleton
-
-var hungerSingletonInstance *HungerSingleton
-
-// init -> main
-func init() {
-	hungerSingletonInstance = &HungerSingleton{}
-}
-
-type HungerSingleton struct {
-}
-
-func GetHungerSingleton() *HungerSingleton {
-	return hungerSingletonInstance
+	chickenMeal := ChickenMeal()
+	fmt.Println("chicken meal item:")
+	chickenMeal.ShowItems()
+	fmt.Println(fmt.Sprintf("chicken meal，total cost：%f", chickenMeal.getCost()))
 }
 ```
 
-* 测试类
-``` go
-package singleton
-
-import "testing"
-
-func BenchmarkLazySingleton(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		instanceA := GetLazySingletonInstance()
-		instanceB := GetLazySingletonInstance()
-		if instanceA != instanceB {
-			b.Error("different objects")
-		}
-	}
-}
-
-func BenchmarkHungerSingleton(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		instanceA := GetHungerSingleton()
-		instanceB := GetHungerSingleton()
-		if instanceA != instanceB {
-			b.Error("different objects")
-		}
-	}
-}
-
-func BenchmarkDoubleCheckSingleton(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		instanceA := GetDoubleCheckSingletonInstance()
-		instanceB := GetDoubleCheckSingletonInstance()
-		if instanceA != instanceB {
-			b.Error("different objects")
-		}
-	}
-}
 ```
 * 执行命令
 ```shell
-go test -bench=. -run=none
+go test -v ./
 ```
 
 * 输出结果
 ```
-BenchmarkLazySingleton-2                291124850                4.460 ns/op
-BenchmarkHungerSingleton-2              1000000000               0.3125 ns/op
-BenchmarkDoubleCheckSingleton-2         244314862                4.992 ns/op
+=== RUN   TestBuilder
+veg meal item:
+This is a veg burger packed in a wrapper
+This is a CocaCola packed in a bottle
+veg meal，total cost：28.980000
+chicken meal item:
+This is a chicken burger packed in a wrapper
+This is a PepsiCola packed in a bottle
+chicken meal，total cost：47.980000
+--- PASS: TestBuilder (0.00s)
 PASS
-ok      go-design-patterns/creational/singleton 3.819s
+ok      go-design-patterns/creational/builder   0.339s
 ```
 ## 类图
-![类图](https://caixunshi.github.io/document/go-design-patterns/singleton.jpg)
+![类图](https://caixunshi.github.io/document/go-design-patterns/builder.jpg)
 
 ## 优点
 * 建造者独立，易扩展。
