@@ -84,7 +84,7 @@ func TestShapeFactory(t *testing.T) {
 ```
 * 执行命令
 ```shell
-go test ./
+go test -v ./
 ```
 
 * 输出结果
