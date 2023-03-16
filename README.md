@@ -26,7 +26,7 @@ of Reusable Object-Oriented Software（中文译名：设计模式 - 可复用�
 * <a href="https://github.com/caixunshi/go-design-patterns/tree/main/creational/factory">工厂模式（Factory Pattern）</a>
 * <a href="https://github.com/caixunshi/go-design-patterns/tree/main/creational/abstract-factory">抽象工厂模式（Abstract Factory Pattern）</a>
 * <a href="https://github.com/caixunshi/go-design-patterns/tree/main/creational/singleton">单例模式（Singleton Pattern）</a>
-* <a href="">建造者模式（Builder Pattern）</a>
+* <a href="https://github.com/caixunshi/go-design-patterns/tree/main/creational/builder">建造者模式（Builder Pattern）</a>
 * <a href="">原型模式（Prototype Pattern）</a>
 
 ### 结构型模式
