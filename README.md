@@ -27,7 +27,7 @@ of Reusable Object-Oriented Software（中文译名：设计模式 - 可复用�
 * <a href="https://github.com/caixunshi/go-design-patterns/tree/main/creational/abstract-factory">抽象工厂模式（Abstract Factory Pattern）</a>
 * <a href="https://github.com/caixunshi/go-design-patterns/tree/main/creational/singleton">单例模式（Singleton Pattern）</a>
 * <a href="https://github.com/caixunshi/go-design-patterns/tree/main/creational/builder">建造者模式（Builder Pattern）</a>
-* <a href="">原型模式（Prototype Pattern）</a>
+* <a href="https://github.com/caixunshi/go-design-patterns/tree/main/creational/prototype">原型模式（Prototype Pattern）</a>
 
 ### 结构型模式
 结构型设计模式关注类和对象的组合。继承的概念被用来组合接口和定义组合对象获得新功能的方式。
