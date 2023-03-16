@@ -7,8 +7,8 @@ type Square struct {
 func (*Square) getType() string {
 	return "square"
 }
-func (c *Square) clone() Shape {
+func (s *Square) clone() Shape {
 	return &Square{
-		resource: c.resource,
+		resource: s.resource,
 	}
 }

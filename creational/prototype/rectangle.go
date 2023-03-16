@@ -7,8 +7,8 @@ type Rectangle struct {
 func (*Rectangle) getType() string {
 	return "rectangle"
 }
-func (c *Rectangle) clone() Shape {
+func (r *Rectangle) clone() Shape {
 	return &Rectangle{
-		resource: c.resource,
+		resource: r.resource,
 	}
 }
