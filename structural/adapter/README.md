@@ -12,35 +12,118 @@
 
 AudioPlayer 使用适配器类 MediaAdapter 传递所需的音频类型，不需要知道能播放所需格式音频的实际类。AdapterPatternDemo 类使用 AudioPlayer 类来播放各种格式。
 ## 代码展示
-* 画图接口
+* MediaPlayer接口
 ``` go
-type Shape interface {
-	draw()
+package adapter
+
+type MediaPlayer interface {
+	play(string)
+}
+```
+* MediaPlayer接口的实现AudioPlayer
+``` go
+package adapter
+
+import "fmt"
+
+type AudioPlayer struct {
+}
+
+func (a *AudioPlayer) play(fileName string) {
+	fmt.Println("audio player：" + fileName)
+}
+```
+* AdvancedMediaPlayer接口
+``` go
+package adapter
+
+type AdvancedMediaPlayer interface {
+	playVlc(string)
+	playMp4(string)
+}
+```
+* AdvancedMediaPlayer接口的实现Mp4Player
+``` go
+package adapter
+
+import "fmt"
+
+type Mp4Player struct {
+}
+
+func (*Mp4Player) playVlc(fileName string) {
+	panic("unsupported file format: " + fileName)
+}
+func (*Mp4Player) playMp4(fileName string) {
+	fmt.Println("Play mp4 file: " + fileName)
 }
 ```
 
+* AdvancedMediaPlayer接口的实现VlcPlayer
+``` go
+package adapter
 
+import "fmt"
+
+type VlcPlayer struct {
+}
+
+func (*VlcPlayer) playVlc(fileName string) {
+	fmt.Println("Play vlc file: " + fileName)
+}
+func (*VlcPlayer) playMp4(fileName string) {
+	panic("unsupported file format")
+}
+```
+
+* MediaPlayer接口的Mp4适配器实现
+``` go
+package adapter
+
+type Mp4MediaAdapter struct {
+	advancedMediaPlayer AdvancedMediaPlayer
+}
+
+func (m *Mp4MediaAdapter) play(fileName string) {
+	m.advancedMediaPlayer.playMp4(fileName)
+}
+```
+* MediaPlayer接口的Vlc适配器实现
+``` go
+package adapter
+
+type VlcMediaAdapter struct {
+	advancedMediaPlayer AdvancedMediaPlayer
+}
+
+func (m *VlcMediaAdapter) play(fileName string) {
+	m.advancedMediaPlayer.playVlc(fileName)
+}
+
+```
 * 测试类
 ``` go
-func TestShapeFactory(t *testing.T) {
-	var factory = &ShapeFactory{}
-	circle, err := factory.getShape(CircleShape)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	circle.draw()
+package adapter
 
-	rectangle, err := factory.getShape(RectangleShape)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	rectangle.draw()
+import "testing"
 
-	square, err := factory.getShape(SquareShape)
-	if err != nil {
-		t.Errorf(err.Error())
+func TestAdapter(t *testing.T) {
+	// user audio play
+	var mediaPlayer MediaPlayer
+	mediaPlayer = &AudioPlayer{}
+	mediaPlayer.play("map3")
+
+	// user VlcMediaAdapter play
+	mediaPlayer = &VlcMediaAdapter{
+		advancedMediaPlayer: &VlcPlayer{},
 	}
-	square.draw()
+	mediaPlayer.play("vlc")
+
+	// user Mp4MediaAdapter play
+	mediaPlayer = &Mp4MediaAdapter{
+		advancedMediaPlayer: &Mp4Player{},
+	}
+	mediaPlayer.play("mp4")
 }
 ```
 * 执行命令
@@ -50,12 +133,13 @@ go test -v ./
 
 * 输出结果
 ```
-This is a circle
-This is a rectangle
-This is a square
---- PASS: TestShapeFactory (0.00s)
+=== RUN   TestAdapter
+audio player：map3
+Play vlc file: vlc
+Play mp4 file: mp4
+--- PASS: TestAdapter (0.00s)
 PASS
-ok      go-design-patterns/creational/factory   0.330s
+ok      go-design-patterns/structural/adapter   0.169s
 ```
 ## 类图
 ![类图](https://caixunshi.github.io/document/go-design-patterns/adapter.jpg)

@@ -1,9 +1,9 @@
 package adapter
 
-type MediaAdapter struct {
+type VlcMediaAdapter struct {
 	advancedMediaPlayer AdvancedMediaPlayer
 }
 
-func (m *MediaAdapter) play(fileName string) {
+func (m *VlcMediaAdapter) play(fileName string) {
 	m.advancedMediaPlayer.playVlc(fileName)
 }
