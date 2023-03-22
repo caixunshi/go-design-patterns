@@ -62,7 +62,7 @@ of Reusable Object-Oriented Software（中文译名：设计模式 - 可复用�
 
 ### 结构型模式
 结构型设计模式关注类和对象的组合。继承的概念被用来组合接口和定义组合对象获得新功能的方式。
-* <a href="">适配器模式（Adapter Pattern）</a>
+* <a href="https://github.com/caixunshi/go-design-patterns/tree/main/structural/adapter">适配器模式（Adapter Pattern）</a>
 * <a href="">桥接模式（Bridge Pattern）</a>
 * <a href="">过滤器模式（Filter、Criteria Pattern）</a>
 * <a href="">组合模式（Composite Pattern）</a>
