@@ -1,5 +1,5 @@
 package adapter
 
 type MediaPlayer interface {
-	play() string
+	play(string, string)
 }
