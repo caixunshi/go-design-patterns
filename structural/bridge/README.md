@@ -7,62 +7,7 @@
 ## 场景描述
 我们有一个作为桥接实现的 DrawAPI 接口和实现了 DrawAPI 接口的实体类 RedCircle、GreenCircle。Shape 是一个抽象类，将使用 DrawAPI 的对象。BridgePatternDemo 类使用 Shape 类来画出不同颜色的圆。
 ## 代码展示
-* MediaPlayer接口
-``` go
-package adapter
 
-type MediaPlayer interface {
-	play(string)
-}
-```
-* MediaPlayer接口的实现AudioPlayer
-``` go
-package adapter
-
-import "fmt"
-
-type AudioPlayer struct {
-}
-
-func (a *AudioPlayer) play(fileName string) {
-	fmt.Println("audio player：" + fileName)
-}
-```
-* AdvancedMediaPlayer接口
-``` go
-package adapter
-
-type AdvancedMediaPlayer interface {
-	playVlc(string)
-	playMp4(string)
-}
-```
-
-* MediaPlayer接口的Mp4适配器实现
-``` go
-package adapter
-
-type Mp4MediaAdapter struct {
-	advancedMediaPlayer AdvancedMediaPlayer
-}
-
-func (m *Mp4MediaAdapter) play(fileName string) {
-	m.advancedMediaPlayer.playMp4(fileName)
-}
-```
-* MediaPlayer接口的Vlc适配器实现
-``` go
-package adapter
-
-type VlcMediaAdapter struct {
-	advancedMediaPlayer AdvancedMediaPlayer
-}
-
-func (m *VlcMediaAdapter) play(fileName string) {
-	m.advancedMediaPlayer.playVlc(fileName)
-}
-
-```
 * 测试类
 ``` go
 package adapter
