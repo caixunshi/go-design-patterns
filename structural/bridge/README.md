@@ -1,16 +1,11 @@
 # 桥接模式
-适配器模式（Adapter Pattern）是作为两个不兼容的接口之间的桥梁。这种类型的设计模式属于结构型模式，它结合了两个独立接口的功能。
+桥接（Bridge）是用于把抽象化与实现化解耦，使得二者可以独立变化。这种类型的设计模式属于结构型模式，它通过提供抽象化和实现化之间的桥接结构，来实现二者的解耦。
 
-这种模式涉及到一个单一的类，该类负责加入独立的或不兼容的接口功能。举个真实的例子，读卡器是作为内存卡和笔记本之间的适配器。您将内存卡插入读卡器，再将读卡器插入笔记本，这样就可以通过笔记本来读取内存卡。
+这种模式涉及到一个作为桥接的接口，使得实体类的功能独立于接口实现类。这两种类型的类可被结构化改变而互不影响。
+
 # 示例
 ## 场景描述
-我们有一个 MediaPlayer 接口和一个实现了 MediaPlayer 接口的实体类 AudioPlayer。默认情况下，AudioPlayer 可以播放 mp3 格式的音频文件。
-
-我们还有另一个接口 AdvancedMediaPlayer 和实现了 AdvancedMediaPlayer 接口的实体类。该类可以播放 vlc 和 mp4 格式的文件。
-
-我们想要让 AudioPlayer 播放其他格式的音频文件。为了实现这个功能，我们需要创建一个实现了 MediaPlayer 接口的适配器类 MediaAdapter，并使用 AdvancedMediaPlayer 对象来播放所需的格式。
-
-AudioPlayer 使用适配器类 MediaAdapter 传递所需的音频类型，不需要知道能播放所需格式音频的实际类。AdapterPatternDemo 类使用 AudioPlayer 类来播放各种格式。
+我们有一个作为桥接实现的 DrawAPI 接口和实现了 DrawAPI 接口的实体类 RedCircle、GreenCircle。Shape 是一个抽象类，将使用 DrawAPI 的对象。BridgePatternDemo 类使用 Shape 类来画出不同颜色的圆。
 ## 代码展示
 * MediaPlayer接口
 ``` go
@@ -40,39 +35,6 @@ package adapter
 type AdvancedMediaPlayer interface {
 	playVlc(string)
 	playMp4(string)
-}
-```
-* AdvancedMediaPlayer接口的实现Mp4Player
-``` go
-package adapter
-
-import "fmt"
-
-type Mp4Player struct {
-}
-
-func (*Mp4Player) playVlc(fileName string) {
-	panic("unsupported file format: " + fileName)
-}
-func (*Mp4Player) playMp4(fileName string) {
-	fmt.Println("Play mp4 file: " + fileName)
-}
-```
-
-* AdvancedMediaPlayer接口的实现VlcPlayer
-``` go
-package adapter
-
-import "fmt"
-
-type VlcPlayer struct {
-}
-
-func (*VlcPlayer) playVlc(fileName string) {
-	fmt.Println("Play vlc file: " + fileName)
-}
-func (*VlcPlayer) playMp4(fileName string) {
-	panic("unsupported file format")
 }
 ```
 
@@ -142,18 +104,20 @@ PASS
 ok      go-design-patterns/structural/adapter   0.169s
 ```
 ## 类图
-![类图](https://caixunshi.github.io/document/go-design-patterns/adapter.jpg)
+![类图](https://caixunshi.github.io/document/go-design-patterns/bridge.jpg)
 
 ## 优点
-* 可以让任何两个没有关联的类一起运行。
-* 提高了类的复用。 
-* 增加了类的透明度。 
-* 灵活性好。
+* 抽象和实现的分离。 
+* 优秀的扩展能力。 
+* 实现细节对客户透明。
 
 ## 缺点
-* 过多地使用适配器，会让系统非常零乱，不易整体进行把握。比如，明明看到调用的是 A 接口，其实内部被适配成了 B 接口的实现，一个系统如果太多出现这种情况，无异于一场灾难。因此如果不是很有必要，可以不使用适配器，而是直接对系统进行重构。
+* 桥接模式的引入会增加系统的理解与设计难度，由于聚合关联关系建立在抽象层，要求开发者针对抽象进行设计与编程。
 
 ## 使用场景
-有动机地修改一个正常运行的系统的接口，这时应该考虑使用适配器模式。
+* 如果一个系统需要在构件的抽象化角色和具体化角色之间增加更多的灵活性，避免在两个层次之间建立静态的继承联系，通过桥接模式可以使它们在抽象层建立一个关联关系。 
+* 对于那些不希望使用继承或因为多层次继承导致系统类的个数急剧增加的系统，桥接模式尤为适用。 
+* 一个类存在两个独立变化的维度，且这两个维度都需要进行扩展。
+
 ## 注意事项
-适配器不是在详细设计时添加的，而是解决正在服役的项目的问题。
+对于两个独立变化的维度，使用桥接模式再适合不过了.
