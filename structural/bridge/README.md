@@ -7,32 +7,92 @@
 ## 场景描述
 我们有一个作为桥接实现的 DrawAPI 接口和实现了 DrawAPI 接口的实体类 RedCircle、GreenCircle。Shape 是一个抽象类，将使用 DrawAPI 的对象。BridgePatternDemo 类使用 Shape 类来画出不同颜色的圆。
 ## 代码展示
+* 定义画图接口
+``` go
+package bridge
 
+type DrawAPI interface {
+	drawCircle(radius, x, y int32)
+}
+```
+
+* 定义画红色的圆实现
+``` go
+package bridge
+
+import "fmt"
+
+type RedCircle struct {
+}
+
+func (receiver *RedCircle) drawCircle(radius, x, y int32) {
+	fmt.Println(fmt.Sprintf("draw a red circle, radius=%d, x=%d, y=%d", radius, x, y))
+}
+```
+
+* 定义画绿色的圆实现
+``` go
+package bridge
+
+import "fmt"
+
+type GreenCircle struct {
+}
+
+func (g *GreenCircle) drawCircle(radius, x, y int32) {
+	fmt.Println(fmt.Sprintf("draw a green circle, radius=%d, x=%d, y=%d", radius, x, y))
+}
+```
+* 定义图形接口
+``` go
+package bridge
+
+type Shape interface {
+	draw()
+}
+```
+* 定义原形的实现
+``` go
+package bridge
+
+type CircleShape struct {
+	DrawAPI
+	radius, x, y int32
+}
+
+func (c *CircleShape) draw() {
+	c.drawCircle(c.radius, c.x, c.y)
+}
+```
 * 测试类
 ``` go
-package adapter
+package bridge
 
 import "testing"
 
-func TestAdapter(t *testing.T) {
-	// user audio play
-	var mediaPlayer MediaPlayer
-	mediaPlayer = &AudioPlayer{}
-	mediaPlayer.play("map3")
-
-	// user VlcMediaAdapter play
-	mediaPlayer = &VlcMediaAdapter{
-		advancedMediaPlayer: &VlcPlayer{},
+func TestBridge(t *testing.T) {
+	// draw red circle
+	redCircle := &RedCircle{}
+	circleShape1 := &CircleShape{
+		redCircle,
+		3,
+		10,
+		10,
 	}
-	mediaPlayer.play("vlc")
+	circleShape1.draw()
 
-	// user Mp4MediaAdapter play
-	mediaPlayer = &Mp4MediaAdapter{
-		advancedMediaPlayer: &Mp4Player{},
+	// draw green circle
+	greenCircle := &RedCircle{}
+	circleShape2 := &CircleShape{
+		greenCircle,
+		3,
+		10,
+		10,
 	}
-	mediaPlayer.play("mp4")
+	circleShape2.draw()
 }
 ```
+可以看到，画图DrawAPI是一个独立的演进方向，而画圆形Shape又是一个独立演进的方向。
 * 执行命令
 ```shell
 go test -v ./
@@ -40,13 +100,12 @@ go test -v ./
 
 * 输出结果
 ```
-=== RUN   TestAdapter
-audio player：map3
-Play vlc file: vlc
-Play mp4 file: mp4
---- PASS: TestAdapter (0.00s)
+=== RUN   TestBridge
+draw a red circle, radius=3, x=10, y=10
+draw a red circle, radius=3, x=10, y=10
+--- PASS: TestBridge (0.00s)
 PASS
-ok      go-design-patterns/structural/adapter   0.169s
+ok      go-design-patterns/structural/bridge    0.234s
 ```
 ## 类图
 ![类图](https://caixunshi.github.io/document/go-design-patterns/bridge.jpg)
