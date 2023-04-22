@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-func TestName(t *testing.T) {
+func TestFilter(t *testing.T) {
 
 	persons := []*Person{
 		&Person{
