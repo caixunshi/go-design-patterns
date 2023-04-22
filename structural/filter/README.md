@@ -230,13 +230,14 @@ PASS
 ok      go-design-patterns/structural/filter    0.009s
 ```
 ## 类图
-![类图](https://caixunshi.github.io/document/go-design-patterns/bridge.jpg)
+![类图](https://caixunshi.github.io/document/go-design-patterns/filter.jpg)
 
 ## 优点
-* 过滤逻辑和业务逻辑分离
+* 将对象的过滤、校验逻辑抽离出来，降低系统的复杂度。
+* 过滤规则可实现重复利用。
 
 ## 缺点
-* 桥接模式的引入会增加系统的理解与设计难度，由于聚合关联关系建立在抽象层，要求开发者针对抽象进行设计与编程。
+* 性能较低，每个过滤器对每一个元素都会进行遍历。如果有n个元素，m个过滤器，则复杂度为O(mn)
 
 ## 使用场景
 需要对数据进行特殊处理，处理逻辑与业务逻辑解耦的情况。
