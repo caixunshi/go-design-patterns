@@ -6,44 +6,196 @@
 我们将创建一个 Person 对象、Criteria 接口和实现了该接口的实体类，来过滤 Person 对象的列表。CriteriaPatternDemo 类使用 Criteria 对象，基于各种标准和它们的结合来过滤 Person 对象的列表。
 
 ## 代码展示
-* 定义画图接口
+* 创建Person对象
 ``` go
-package bridge
+package filter
 
-type DrawAPI interface {
-	drawCircle(radius, x, y int32)
+type Person struct {
+	name string
+	age  uint
+	sex  string
 }
 ```
+* 创建过滤标准接口
+``` go
+package filter
 
+type Criteria interface {
+	meetCriteria([]*Person) []*Person
+}
+```
+* 过滤男性
+``` go
+package filter
+
+type MaleCriteria struct {
+}
+
+func (c *MaleCriteria) meetCriteria(persons []*Person) []*Person {
+	result := make([]*Person, 0, len(persons))
+	for _, person := range persons {
+		if person.name == "Male" {
+			result = append(result, person)
+		}
+	}
+	return result
+}
+```
+* 过滤女性
+``` go
+package filter
+
+type FemaleCriteria struct {
+}
+
+func (c *FemaleCriteria) meetCriteria(persons []*Person) []*Person {
+	result := make([]*Person, 0, len(persons))
+	for _, person := range persons {
+		if person.name == "Female" {
+			result = append(result, person)
+		}
+	}
+	return result
+}
+```
+* 过滤青少年
+``` go
+package filter
+
+type YoungCriteria struct {
+}
+
+func (c *YoungCriteria) meetCriteria(persons []*Person) []*Person {
+	result := make([]*Person, 0, len(persons))
+	for _, person := range persons {
+		if person.age <= 18 {
+			result = append(result, person)
+		}
+	}
+	return result
+}
+```
+* 组合过滤器，表示要同时满足两个条件，取交集
+``` go
+package filter
+
+// AndCriteria 表示需要同时满足两个条件
+type AndCriteria struct {
+	criteria      Criteria
+	otherCriteria Criteria
+}
+
+func (c *AndCriteria) meetCriteria(persons []*Person) []*Person {
+	persons = c.criteria.meetCriteria(persons)
+	persons = c.otherCriteria.meetCriteria(persons)
+	return persons
+}
+```
+* 组合过滤器，表示满足任意一个条件，取并集
+``` go
+package filter
+
+// OrCriteria 表示取两个标准的并集
+type OrCriteria struct {
+	criteria      Criteria
+	otherCriteria Criteria
+}
+
+func (c *OrCriteria) meetCriteria(persons []*Person) []*Person {
+	persons1 := c.criteria.meetCriteria(persons)
+	persons2 := c.otherCriteria.meetCriteria(persons)
+
+	resultMap := make(map[string]*Person)
+	for _, person := range persons1 {
+		resultMap[person.name] = person
+	}
+	for _, person := range persons2 {
+		if resultMap[person.name] == nil {
+			resultMap[person.name] = person
+		}
+	}
+	result := make([]*Person, 0, len(resultMap))
+	for _, person := range resultMap {
+		result = append(result, person)
+	}
+	return result
+}
+```
 * 测试类
 ``` go
-package bridge
+package filter
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
-func TestBridge(t *testing.T) {
-	// draw red circle
-	redCircle := &RedCircle{}
-	circleShape1 := &CircleShape{
-		redCircle,
-		3,
-		10,
-		10,
+func TestName(t *testing.T) {
+
+	persons := []*Person{
+		&Person{
+			name: "jack",
+			sex:  "Male",
+			age:  25,
+		},
+		&Person{
+			name: "marray",
+			sex:  "Female",
+			age:  21,
+		},
+		&Person{
+			name: "xiaoming",
+			sex:  "Male",
+			age:  15,
+		},
 	}
-	circleShape1.draw()
-
-	// draw green circle
-	greenCircle := &RedCircle{}
-	circleShape2 := &CircleShape{
-		greenCircle,
-		3,
-		10,
-		10,
+	// 筛选女性
+	female := &FemaleCriteria{}
+	fmt.Println("开始筛选女性")
+	for _, person := range female.meetCriteria(persons) {
+		fmt.Println(*person)
 	}
-	circleShape2.draw()
+	fmt.Println("筛选女性结束")
+	// 筛选女性
+	male := &MaleCriteria{}
+	fmt.Println("\n开始筛选男性")
+	for _, person := range male.meetCriteria(persons) {
+		fmt.Println(*person)
+	}
+	fmt.Println("筛选男性结束")
+	// 筛选青少年
+	young := &YoungCriteria{}
+	fmt.Println("\n开始筛选青少年")
+	for _, person := range young.meetCriteria(persons) {
+		fmt.Println(*person)
+	}
+	fmt.Println("筛选青少年结束")
+
+	// 筛选男性青少年
+	and := &AndCriteria{
+		criteria:      male,
+		otherCriteria: young,
+	}
+	fmt.Println("\n开始筛选男性青少年")
+	for _, person := range and.meetCriteria(persons) {
+		fmt.Println(*person)
+	}
+	fmt.Println("筛选男性青少年结束")
+
+	// 筛选男性青少年
+	or := OrCriteria{
+		criteria:      female,
+		otherCriteria: young,
+	}
+	fmt.Println("\n开始筛选女性或青少年")
+	for _, person := range or.meetCriteria(persons) {
+		fmt.Println(*person)
+	}
+	fmt.Println("筛选女性或青少年结束")
 }
+
 ```
-可以看到，画图DrawAPI是一个独立的演进方向，而画圆形Shape又是一个独立演进的方向。
+可以看到，过滤标准可以自由组合，有新增的过滤标准时只需要新增一个类即可，这有点像责任链模式，但区别是过滤器是为了对一组对象做筛选，过滤器模式没有明确的先后关系，而责任链是有明确先后关系的，跟流水线一样，链条的每个节点只负责其中的一道工序
 * 执行命令
 ```shell
 go test -v ./
