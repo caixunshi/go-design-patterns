@@ -6,196 +6,57 @@
 演示了一个组织中员工的层次结构。
 
 ## 代码展示
-* 创建Person对象
+* 创建Employee对象
 ``` go
-package filter
+package composite
 
-type Person struct {
-	name string
-	age  uint
-	sex  string
+type Employee struct {
+	name         string
+	dept         string
+	salary       float32
+	subordinates []Employee
 }
+
 ```
-* 创建过滤标准接口
-``` go
-package filter
 
-type Criteria interface {
-	meetCriteria([]*Person) []*Person
-}
-```
-* 过滤男性
-``` go
-package filter
-
-type MaleCriteria struct {
-}
-
-func (c *MaleCriteria) meetCriteria(persons []*Person) []*Person {
-	result := make([]*Person, 0, len(persons))
-	for _, person := range persons {
-		if person.name == "Male" {
-			result = append(result, person)
-		}
-	}
-	return result
-}
-```
-* 过滤女性
-``` go
-package filter
-
-type FemaleCriteria struct {
-}
-
-func (c *FemaleCriteria) meetCriteria(persons []*Person) []*Person {
-	result := make([]*Person, 0, len(persons))
-	for _, person := range persons {
-		if person.name == "Female" {
-			result = append(result, person)
-		}
-	}
-	return result
-}
-```
-* 过滤青少年
-``` go
-package filter
-
-type YoungCriteria struct {
-}
-
-func (c *YoungCriteria) meetCriteria(persons []*Person) []*Person {
-	result := make([]*Person, 0, len(persons))
-	for _, person := range persons {
-		if person.age <= 18 {
-			result = append(result, person)
-		}
-	}
-	return result
-}
-```
-* 组合过滤器，表示要同时满足两个条件，取交集
-``` go
-package filter
-
-// AndCriteria 表示需要同时满足两个条件
-type AndCriteria struct {
-	criteria      Criteria
-	otherCriteria Criteria
-}
-
-func (c *AndCriteria) meetCriteria(persons []*Person) []*Person {
-	persons = c.criteria.meetCriteria(persons)
-	persons = c.otherCriteria.meetCriteria(persons)
-	return persons
-}
-```
-* 组合过滤器，表示满足任意一个条件，取并集
-``` go
-package filter
-
-// OrCriteria 表示取两个标准的并集
-type OrCriteria struct {
-	criteria      Criteria
-	otherCriteria Criteria
-}
-
-func (c *OrCriteria) meetCriteria(persons []*Person) []*Person {
-	persons1 := c.criteria.meetCriteria(persons)
-	persons2 := c.otherCriteria.meetCriteria(persons)
-
-	resultMap := make(map[string]*Person)
-	for _, person := range persons1 {
-		resultMap[person.name] = person
-	}
-	for _, person := range persons2 {
-		if resultMap[person.name] == nil {
-			resultMap[person.name] = person
-		}
-	}
-	result := make([]*Person, 0, len(resultMap))
-	for _, person := range resultMap {
-		result = append(result, person)
-	}
-	return result
-}
-```
 * 测试类
 ``` go
-package filter
+package composite
 
 import (
 	"fmt"
 	"testing"
 )
 
-func TestName(t *testing.T) {
+func TestComposite(t *testing.T) {
+	ceo := Employee{"John", "CEO", 30000, nil}
 
-	persons := []*Person{
-		&Person{
-			name: "jack",
-			sex:  "Male",
-			age:  25,
-		},
-		&Person{
-			name: "marray",
-			sex:  "Female",
-			age:  21,
-		},
-		&Person{
-			name: "xiaoming",
-			sex:  "Male",
-			age:  15,
-		},
-	}
-	// 筛选女性
-	female := &FemaleCriteria{}
-	fmt.Println("开始筛选女性")
-	for _, person := range female.meetCriteria(persons) {
-		fmt.Println(*person)
-	}
-	fmt.Println("筛选女性结束")
-	// 筛选女性
-	male := &MaleCriteria{}
-	fmt.Println("\n开始筛选男性")
-	for _, person := range male.meetCriteria(persons) {
-		fmt.Println(*person)
-	}
-	fmt.Println("筛选男性结束")
-	// 筛选青少年
-	young := &YoungCriteria{}
-	fmt.Println("\n开始筛选青少年")
-	for _, person := range young.meetCriteria(persons) {
-		fmt.Println(*person)
-	}
-	fmt.Println("筛选青少年结束")
+	// 总裁办公室
+	headSales := Employee{"Robert", "Head Sales", 20000, nil}
+	headMarketing := Employee{"Michel", "Head Marketing", 20000, nil}
+	headSubordinates := []Employee{headSales, headMarketing}
+	ceo.subordinates = headSubordinates
 
-	// 筛选男性青少年
-	and := &AndCriteria{
-		criteria:      male,
-		otherCriteria: young,
-	}
-	fmt.Println("\n开始筛选男性青少年")
-	for _, person := range and.meetCriteria(persons) {
-		fmt.Println(*person)
-	}
-	fmt.Println("筛选男性青少年结束")
+	// 文员
+	clerk1 := Employee{"Laura", "Marketing", 10000, nil}
+	clerk2 := Employee{"Bob", "Marketing", 10000, nil}
+	marketingSubordinates := []Employee{clerk1, clerk2}
+	headMarketing.subordinates = marketingSubordinates
 
-	// 筛选男性青少年
-	or := OrCriteria{
-		criteria:      female,
-		otherCriteria: young,
-	}
-	fmt.Println("\n开始筛选女性或青少年")
-	for _, person := range or.meetCriteria(persons) {
-		fmt.Println(*person)
-	}
-	fmt.Println("筛选女性或青少年结束")
+	// 销售
+	salesExecutive1 := Employee{"Richard", "Sales", 10000, nil}
+	salesExecutive2 := Employee{"Rob", "Sales", 10000, nil}
+	salesSubordinates := []Employee{salesExecutive1, salesExecutive2}
+	headSales.subordinates = salesSubordinates
+
+	//打印该组织的所有员工
+	fmt.Println(ceo)
+	fmt.Println(&ceo.subordinates[1] == &headMarketing)
+	fmt.Println(headMarketing.subordinates)
 }
 
 ```
-可以看到，过滤标准可以自由组合，有新增的过滤标准时只需要新增一个类即可，这有点像责任链模式，但区别是过滤器是为了对一组对象做筛选，过滤器模式没有明确的先后关系，而责任链是有明确先后关系的，跟流水线一样，链条的每个节点只负责其中的一道工序
+可以看到组合模式创建了一个包含自己对象组的类，非常适合用来表示自包含的数据结构，如组织架构，地址信息等
 * 执行命令
 ```shell
 go test -v ./
@@ -230,7 +91,7 @@ PASS
 ok      go-design-patterns/structural/filter    0.009s
 ```
 ## 类图
-![类图](https://caixunshi.github.io/document/go-design-patterns/filter.jpg)
+![类图](https://caixunshi.github.io/document/go-design-patterns/cpmposite.jpg)
 
 ## 优点
 * 将对象的过滤、校验逻辑抽离出来，降低系统的复杂度。
