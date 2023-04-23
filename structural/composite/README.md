@@ -64,31 +64,7 @@ go test -v ./
 
 * 输出结果
 ```
-=== RUN   TestFilter
-开始筛选女性
-{marray 21 Female}
-筛选女性结束
 
-开始筛选男性
-{jack 25 Male}
-{xiaoming 15 Male}
-筛选男性结束
-
-开始筛选青少年
-{xiaoming 15 Male}
-筛选青少年结束
-
-开始筛选男性青少年
-{xiaoming 15 Male}
-筛选男性青少年结束
-
-开始筛选女性或青少年
-{marray 21 Female}
-{xiaoming 15 Male}
-筛选女性或青少年结束
---- PASS: TestFilter (0.00s)
-PASS
-ok      go-design-patterns/structural/filter    0.009s
 ```
 ## 类图
 ![类图](https://caixunshi.github.io/document/go-design-patterns/cpmposite.jpg)
