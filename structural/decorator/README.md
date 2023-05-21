@@ -10,10 +10,103 @@
 
 * 定义画图接口
 ``` go
+package decorator
+
+type Shape interface {
+	draw()
+}
+```
+* 画圆形的实现
+``` go
+package decorator
+
+import "fmt"
+
+type Circle struct {
+}
+
+func (c *Circle) draw() {
+	fmt.Println("这是一个圆形")
+}
+
+```
+* 画三角形的实现
+``` go
+package decorator
+
+import "fmt"
+
+type Rectangle struct {
+}
+
+func (c *Rectangle) draw() {
+	fmt.Println("这是一个长方形")
+}
+
+```
+* 装饰器基类
+``` go
+package decorator
+
+// ShapeDecorator 装饰器基类
+type ShapeDecorator struct {
+	Shape
+}
+```
+
+* 红色装饰器
+``` go
+package decorator
+
+import "fmt"
+
+// ShapeDecorator 装饰器基类
+type RedShapeDecorator struct {
+    ShapeDecorator
+}
+
+func (i *RedShapeDecorator) draw() {
+    i.Shape.draw()
+    fmt.Println("涂上红色")
+}
+
+```
+
+* 绿色装饰器
+``` go
+package decorator
+
+import "fmt"
+
+// GreenShapeDecorator 装饰器基类
+type GreenShapeDecorator struct {
+	ShapeDecorator
+}
+
+func (i *GreenShapeDecorator) draw() {
+	i.Shape.draw()
+	fmt.Println("涂上绿色")
+}
 
 ```
 * 测试类
 ``` go
+package decorator
+
+import (
+	"fmt"
+	"testing"
+)
+
+func TestDecorator(t *testing.T) {
+	circle := &Circle{}
+	rectangle := &Rectangle{}
+	redDecorator1 := RedShapeDecorator{ShapeDecorator{circle}}
+	redDecorator1.draw()
+	fmt.Println("========")
+	redDecorator2 := GreenShapeDecorator{ShapeDecorator{rectangle}}
+	redDecorator2.draw()
+}
 
 ```
 * 执行命令
@@ -23,12 +116,15 @@ go test -v ./
 
 * 输出结果
 ```
-=== RUN   TestBridge
-draw a red circle, radius=3, x=10, y=10
-draw a red circle, radius=3, x=10, y=10
---- PASS: TestBridge (0.00s)
+=== RUN   TestDecorator
+这是一个圆形
+涂上红色
+========
+这是一个长方形
+涂上绿色
+--- PASS: TestDecorator (0.00s)
 PASS
-ok      go-design-patterns/structural/bridge    0.234s
+ok      go-design-patterns/structural/decorator 1.734s
 ```
 ## 类图
 ![类图](https://caixunshi.github.io/document/go-design-patterns/decorator.jpg)
