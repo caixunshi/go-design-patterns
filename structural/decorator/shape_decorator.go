@@ -1,12 +1,6 @@
 package decorator
 
-import "fmt"
-
+// ShapeDecorator 装饰器基类
 type ShapeDecorator struct {
-	shape Shape
-}
-
-func (i *ShapeDecorator) draw() {
-	i.draw()
-	fmt.Println("涂上颜色")
+	Shape
 }
